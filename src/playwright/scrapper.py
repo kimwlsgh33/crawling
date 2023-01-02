@@ -13,23 +13,30 @@ def test_home(page: Page):
 
     soup = BeautifulSoup(html, "lxml")
 
+    # get all contents
     soup2 = soup.find("ytd-rich-grid-renderer", {"class": "style-scope ytd-two-column-browse-results-renderer"})
-
+    # parse the contents
     contents = BeautifulSoup(str(soup2), "lxml")
 
-    soup3 = contents.find_all("ytd-rich-item-renderer", {"class": "style-scope ytd-rich-grid-row"})
+    # get all videos
+    videos = contents.find_all("ytd-rich-item-renderer", {"class": "style-scope ytd-rich-grid-row"})
     
-    videos = BeautifulSoup(str(soup3), "lxml")
+    # videos = BeautifulSoup(str(soup3), "lxml")
+    for video in videos:
+        # get video title
+        link = video.find("a", {"id": "video-title-link"})
+        title = link.get("title")
+        channel = video.find("a", {"class": "yt-simple-endpoint style-scope yt-formatted-string"})
+        meta = video.find_all("span", {"class": "inline-metadata-item style-scope ytd-video-meta-block"})
 
-    soup4 = videos.find_all("div", {"id": "meta"})
-
-    meta = BeautifulSoup(str(soup4), "lxml")
-
-    soup5 = meta.find_all("a", {"id": "video-title-link"})
-    link = BeautifulSoup(str(soup5), "lxml")
-
-    with open(filename, "w") as f:
-        for i in link.find_all("a"):
-            f.write(i.get("title"))
-            f.write("\n")
-        # f.write(str(title))
+        with open(filename, "a") as f:
+            f.write(f"제목: {title}\n")
+            f.write(f"Link: https://youtube.com{link['href']}\n")
+            f.write(f"채널 Name: {channel.text}\n")
+            f.write(f"채널 Link: https://youtube.com{channel['href']}\n")
+            for m in meta:
+                f.write(f"{m.text}\n")
+            # f.write(f"조회수: {meta}\n")
+            # f.write(views + "\n")
+            # f.write(time + "\n")
+            # f.write(f"Duration: {duration.text}\n")
